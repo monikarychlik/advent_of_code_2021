@@ -25,60 +25,62 @@ object Day3 {
         return (Integer.parseInt(gammaRate, 2) * Integer.parseInt(epsilonRate, 2)).toString()
     }
 
-    fun task2(input2: List<String>): String {
-        val input = listOf(
-            "00100",
-            "11110",
-            "10110",
-            "10111",
-            "10101",
-            "01111",
-            "00111",
-            "11100",
-            "10000",
-            "11001",
-            "00010",
-            "01010"
+    fun task2(input: List<String>): String {
+        val oxy = getValue(
+            input = input,
+            moreOnesDefaultValue = "1",
+            lessOnesDefaultValue = "0"
+        )
+        val co2 = getValue(
+            input = input,
+            moreOnesDefaultValue = "0",
+            lessOnesDefaultValue = "1"
         )
 
-        val onesCount = IntArray(input[0].length)
-        var oxyFilter = ""
-        var co2Filter = ""
+        return (Integer.parseInt(oxy, 2) * Integer.parseInt(co2, 2)).toString()
+    }
 
-        for (i in input[0].indices) {
-            for (element in input) {
-                val charArray = element.toCharArray()
-                if (charArray.isNotEmpty() && charArray[i] == '1') {
-                    onesCount[i]++
-                }
-            }
-            if (onesCount[i] < (input.size/2)) {
-                oxyFilter += "0"
-                co2Filter += "1"
-            } else {
-                oxyFilter += "1"
-                co2Filter += "0"
+    private fun getValue(
+        input: List<String>,
+        moreOnesDefaultValue: String,
+        lessOnesDefaultValue: String
+    ): String {
+        var filteredInput = input.toMutableList()
+        var filter = ""
+        var i = 0
+
+        while (i < filteredInput[0].length && filteredInput.size > 1) {
+            filter += getFilterValue(
+                input = filteredInput,
+                column = i,
+                moreOnesDefaultValue = moreOnesDefaultValue,
+                lessOnesDefaultValue = lessOnesDefaultValue
+            )
+            filteredInput = filteredInput.filter {
+                it.startsWith(filter)
+            }.toMutableList()
+            i++
+        }
+        return filteredInput.first()
+    }
+
+    private fun getFilterValue(
+        input: List<String>,
+        column: Int,
+        lessOnesDefaultValue: String,
+        moreOnesDefaultValue: String
+    ): String {
+        var onesCount = 0
+        for (element in input) {
+            val charArray = element.toCharArray()
+            if (charArray.isNotEmpty() && charArray[column] == '1') {
+                onesCount++
             }
         }
-
-        var oxy: String?
-        var i = 0
-        do {
-            oxy = input.firstOrNull {
-                it.startsWith(oxyFilter.dropLast(i))
-            }
-            i++
-        } while (oxy == null)
-
-        var co2: String?
-        i = 0
-        do {
-            co2 = input.firstOrNull {
-                it.startsWith(co2Filter.dropLast(i))
-            }
-            i++
-        } while (co2 == null)
-
-        return (Integer.parseInt(oxy, 2) * Integer.parseInt(co2, 2)).toString()
+        return if (onesCount < (input.size / 2f)) {
+            lessOnesDefaultValue
+        } else {
+            moreOnesDefaultValue
+        }
     }
 }
